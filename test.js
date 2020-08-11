@@ -1,6 +1,6 @@
 const bokstaver = require('./bokstaver');
 const pos = bokstaver.lagPosisjon;
-const brettStr = brett => brett.brett.map(a => a.map(c => c === bokstaver.tom ? " " : c).join(""));
+const brettStr = brett => brett.brett.map(a => a.map(c => c === bokstaver.tom ? " " : c).join("")).join("\n");
 
 
 const brett = bokstaver.lagBrett("ERNASDFG");
