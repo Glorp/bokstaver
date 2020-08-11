@@ -141,8 +141,7 @@ const ordIRetning = (brett, retning) => {
   return ord;
 }
 
-const alleOrd = brett => //[... ordVannrett(brett), ... ordLoddrett(brett)];
-  [... ordIRetning(brett, vannrett), ... ordIRetning(brett, loddrett)];
+const alleOrd = brett => [... ordIRetning(brett, vannrett), ... ordIRetning(brett, loddrett)];
 
 module.exports = {
   lagBrett: lagBrett,
