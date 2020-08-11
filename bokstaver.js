@@ -94,49 +94,32 @@ const naboer = (a, b) => {
 
 const naboGruppe = (pos, gruppe) => gruppe.find(a => naboer(pos, a)) !== undefined;
 
-const ordVannrett = brett => {
-  const ord = [];
-  for (var y = 0; y < brett.storelse; y++) {
-    var nyttOrd = nope;
-    for (var x = 0; x < brett.storelse; x++) {
-      const pos = lagPosisjon(x, y);
-      if (brettHarBrikke(brett, pos)) {
-        if (nyttOrd === nope) {
-          nyttOrd = {
-            start: pos,
-            retning: "vannrett",
-            ord: [brettLes(brett, pos)]
-          };
-        } else {
-          nyttOrd.ord.push(brettLes(brett, pos));
-        }
-      } else {
-        if (nyttOrd !== nope) {
-          if (nyttOrd.ord.length > 1) {
-            ord.push(nyttOrd);
-          }
-          nyttOrd = nope;
-        }
-      }
-    }
-    if (nyttOrd !== nope && nyttOrd.ord.length > 1) {
-      ord.push(nyttOrd);
-    }
-  }
-  return ord;
+const loddrett = Symbol("loddrett");
+const vannrett = Symbol("vannrett");
+const bortover = p => lagPosisjon(p.x + 1, p.y);
+const nedover = p => lagPosisjon(p.x, p.y + 1);
+const vannretning = {
+  retning: vannrett,
+  nestelinje: nedover,
+  nesterute: bortover
+};
+const loddretning = {
+  retning: loddrett,
+  nestelinje: bortover,
+  nesterute: nedover
 };
 
-const ordLoddrett = brett => {
+const ordIRetning = (brett, retning) => {
   const ord = [];
-  for (var x = 0; x < brett.storelse; x++) {
+  const ret = retning === loddrett ? loddretning : vannretning;
+  for (var startPos = lagPosisjon(0, 0); brettInnenfor(brett, startPos); startPos = ret.nestelinje(startPos)) {
     var nyttOrd = nope;
-    for (var y = 0; y < brett.storelse; y++) {
-      const pos = lagPosisjon(x, y);
+    for (var pos = startPos; brettInnenfor(brett, pos); pos = ret.nesterute(pos)) {
       if (brettHarBrikke(brett, pos)) {
         if (nyttOrd === nope) {
           nyttOrd = {
             start: pos,
-            retning: "loddrett",
+            retning: ret.retning,
             ord: [brettLes(brett, pos)]
           };
         } else {
@@ -156,9 +139,10 @@ const ordLoddrett = brett => {
     }
   }
   return ord;
-};
+}
 
-const alleOrd = brett => [... ordVannrett(brett), ... ordLoddrett(brett)];
+const alleOrd = brett => //[... ordVannrett(brett), ... ordLoddrett(brett)];
+  [... ordIRetning(brett, vannrett), ... ordIRetning(brett, loddrett)];
 
 module.exports = {
   lagBrett: lagBrett,
