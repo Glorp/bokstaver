@@ -143,12 +143,36 @@ const ordIRetning = (brett, retning) => {
 
 const alleOrd = brett => [... ordIRetning(brett, vannrett), ... ordIRetning(brett, loddrett)];
 
+const brettGruppeFiltrer = (gammeltBrett, gruppe) => {
+  const storelse = gammeltBrett.storelse;
+  const brett = [];
+  for (var y = 0; y < storelse; y++) {
+    const rad = [];
+    for (var x = 0; x < storelse; x++) {
+      const pos = lagPosisjon(x, y);
+      const brikke =
+        gruppe.find(p => sammePosisjon(p, pos)) === undefined
+        ? tom
+        :  brettLes(gammeltBrett, pos);
+      rad.push(brikke);
+    }
+    brett.push(rad);
+  }
+
+  return {
+    brett: brett,
+    storelse: storelse
+  };
+}
+
 module.exports = {
+  tom: tom,
   lagBrett: lagBrett,
   flytt: flytt,
   brettLes: brettLes,
   posisjonTekst: posisjonTekst,
   finnGrupper: finnGrupper,
   lagPosisjon: lagPosisjon,
-  alleOrd: alleOrd
+  alleOrd: alleOrd,
+  brettGruppeFiltrer: brettGruppeFiltrer
 };
