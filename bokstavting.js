@@ -1,5 +1,4 @@
 
-const nope = Symbol("nope");
 const tom = "tom";
 
 const lagBrett = brikker => {
@@ -28,7 +27,7 @@ const sammePosisjon = (a, b) => a.x === b.x && a.y === b.y;
 
 const flytt = (brett, a, b) => {
   if (!brettInnenfor(brett, a) || !brettInnenfor(brett, b)) {
-    return nope;
+    return false;
   }
   const storelse = brett.storelse;
   const ruter = [];
@@ -108,10 +107,10 @@ const rekkerIRetning = (brett, retning) => {
   const rekker = [];
   const ret = retning === loddrett ? loddretning : vannretning;
   for (var startPos = lagPosisjon(0, 0); brettInnenfor(brett, startPos); startPos = ret.nestelinje(startPos)) {
-    var nyRekke = nope;
+    var nyRekke = false;
     for (var pos = startPos; brettInnenfor(brett, pos); pos = ret.nesterute(pos)) {
       if (brettHarBrikke(brett, pos)) {
-        if (nyRekke === nope) {
+        if (nyRekke === false) {
           nyRekke = {
             start: pos,
             retning: ret.retning,
@@ -121,15 +120,15 @@ const rekkerIRetning = (brett, retning) => {
           nyRekke.brikker.push(brettLes(brett, pos));
         }
       } else {
-        if (nyRekke !== nope) {
+        if (nyRekke !== false) {
           if (nyRekke.brikker.length > 1) {
             rekker.push(nyRekke);
           }
-          nyRekke = nope;
+          nyRekke = false;
         }
       }
     }
-    if ((nyRekke !== nope) && nyRekke.brikker.length > 1) {
+    if ((nyRekke !== false) && nyRekke.brikker.length > 1) {
       ord.push(nyRekke);
     }
   }
