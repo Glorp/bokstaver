@@ -38,6 +38,16 @@ readInterface.on("close", start);
 const id = Symbol("id");
 
 var startBrett;
+var holderpa = false;
+var resultater = false;
+
+const sendTilstand = (socket, spiller) => {
+  if (holderpa) {
+    socket.emit("brett", spiller.brett);
+  } else if (resultater !== false) {
+    socket.emit("resultater", resultater);
+  }
+};
 
 io.sockets.on("connection", socket => {
 
@@ -45,16 +55,16 @@ io.sockets.on("connection", socket => {
     const spiller = spill.nySpiller("Gjest", startBrett);
     socket[id] = spiller.id;
     socket.emit("spillerId", spiller.id);
-    socket.emit("brett", startBrett);
-    socket.emit("hei", spiller.navn)
+    socket.emit("hei", spiller.navn);
+    sendTilstand(socket, spiller);
   });
 
   socket.on("eksisterendeSpiller", gammelId => {
     const spiller = spill.eksisterendeSpiller(gammelId, "Gjest", startBrett);
     socket[id] = spiller.id;
     socket.emit("spillerId", spiller.id);
-    socket.emit("brett", spill.brett(spiller.id));
     socket.emit("hei", spiller.navn);
+    sendTilstand(socket, spiller);
   });
 
   socket.on("nyttNavn", nyttNavn => {
@@ -65,9 +75,11 @@ io.sockets.on("connection", socket => {
   });
 
   socket.on("flytt", (a, b) => {
-    const brett = spill.flytt(socket[id], a, b);
-    if (brett !== false) {
-      socket.emit("brett", brett);
+    if (holderpa) {
+      const brett = spill.flytt(socket[id], a, b);
+      if (brett !== false) {
+        socket.emit("brett", brett);
+      }
     }
   });
 
@@ -76,8 +88,6 @@ io.sockets.on("connection", socket => {
 });
 
 var tid;
-
-var holderpa = false;
 
 const tidengar = () => {
   tid = tid - 1;
@@ -90,6 +100,7 @@ const tidengar = () => {
 };
 
 const nyRunde = () => {
+  holderpa = true;
   tid = 61;
   startBrett = bokstavting.lagBrett(brikker.kast());
   spill.nyRunde(startBrett);
@@ -108,7 +119,9 @@ const venter = () => {
 }
 
 const ferdig = () => {
-  io.sockets.emit("resultater", spill.spillere().map(spiller => bokstavting.resultat(spiller, ordliste)));
+  holderpa = false;
+  resultater = spill.spillere().map(spiller => bokstavting.resultat(spiller, ordliste));
+  io.sockets.emit("resultater", resultater);
   tid = 31;
   venter();
 };
