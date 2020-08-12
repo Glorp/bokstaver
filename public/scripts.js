@@ -31,9 +31,8 @@ const drop = ev => {
   socket.emit("flytt", tdPos(sourceElement), tdPos(ev.target));
 };
 
-const lagTabell = brett => {
+const lagTabell = (brett, tdClass) => {
   const tabell = document.createElement("table");
-  //const tds = [];
   var y = 0;
   brett.ruter.forEach(rad => {
     const tr = document.createElement("tr");
@@ -41,6 +40,7 @@ const lagTabell = brett => {
     var x = 0;
     rad.forEach(rute => {
       const td = document.createElement("td");
+      td.classList.add(tdClass);
       td.id = x + "," + y;
       td.setAttribute("data-x", "" + x);
       td.setAttribute("data-y", "" + y);
@@ -74,8 +74,6 @@ document.addEventListener("DOMContentLoaded", event => {
 
     const kanskjeSpillerId = hentSpillerId();
 
-    //socket.emit("nySpiller");
-
     if (kanskjeSpillerId === false) {
       socket.emit("nySpiller");
     } else {
@@ -87,12 +85,11 @@ document.addEventListener("DOMContentLoaded", event => {
     socket.on("updateUsers", data => {
     });
 
-    //create new socket connection
     socket.on("connect", () => {
     });
 
     socket.on("brett", brett => {
-      setHtml(document.body, [lagTabell(brett)]);
+      setHtml(document.getElementById("brett"), [lagTabell(brett, "larg")]);
     });
     socket.on("beregning", beregning => {
       console.log(beregning);
