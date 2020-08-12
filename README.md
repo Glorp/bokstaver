@@ -3,4 +3,4 @@
 bla bla bla
 
 * `npm install`
-* `node ./test.js`
+* `node app.js`

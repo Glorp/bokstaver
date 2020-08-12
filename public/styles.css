@@ -1,0 +1,22 @@
+body {
+  font-family: "Benton Sans", "Helvetica Neue", helvetica, arial, sans-serif;
+  margin: 2em;
+}
+
+h1 {
+  font-style: italic;
+  color: #373fff;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+td {
+  border-style: solid;
+  border-width: 2px;
+  text-align: center;
+  vertical-align: middle;
+  height: 2rem;
+  width: 2rem;
+}
