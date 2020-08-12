@@ -129,7 +129,7 @@ const rekkerIRetning = (brett, retning) => {
       }
     }
     if ((nyRekke !== false) && nyRekke.brikker.length > 1) {
-      ord.push(nyRekke);
+      rekke.push(nyRekke);
     }
   }
   return rekker;
