@@ -31,7 +31,7 @@ const drop = ev => {
   socket.emit("flytt", tdPos(sourceElement), tdPos(ev.target));
 };
 
-const lagTabell = (brett, tdClass) => {
+const lagBrettTabell = (brett, aktiv) => {
   const tabell = document.createElement("table");
   var y = 0;
   brett.ruter.forEach(rad => {
@@ -40,15 +40,22 @@ const lagTabell = (brett, tdClass) => {
     var x = 0;
     rad.forEach(rute => {
       const td = document.createElement("td");
-      td.classList.add(tdClass);
-      td.id = x + "," + y;
-      td.setAttribute("data-x", "" + x);
-      td.setAttribute("data-y", "" + y);
+      td.classList.add(aktiv ? "larg" : "smol");
       td.innerText = rute === "tom" ? "\xa0" : rute.bokstav;
-      td.draggable = true;
-      td.ondragstart = drag;
-      td.ondragover = allowDrop;
-      td.ondrop = drop;
+      if (rute !== "tom") {
+        const sub = document.createElement("sub");
+        sub.innerText = "" + rute.poeng;
+        td.appendChild(sub);
+      }
+      if (aktiv) {
+        td.id = x + "," + y;
+        td.setAttribute("data-x", "" + x);
+        td.setAttribute("data-y", "" + y);
+        td.draggable = true;
+        td.ondragstart = drag;
+        td.ondragover = allowDrop;
+        td.ondrop = drop;
+      }
       tr.appendChild(td);
       x = x + 1;
     });
@@ -57,6 +64,24 @@ const lagTabell = (brett, tdClass) => {
   return tabell;
 };
 
+const resultatHTML = resultat => {
+  const div = document.createElement("div");
+  const p = document.createElement("p");
+  p.innerText =
+    resultat.navn + ": "
+    + (resultat.best ? resultat.best.poeng : ":(");
+  div.appendChild(p);
+  if (resultat.best) {
+    for (const o of resultat.best.ord) {
+      const ordP = document.createElement("p");
+      ordP.innerText = o.tekst + ": " + o.poeng;
+      div.appendChild(ordP);
+    }
+  }
+  const tabell = lagBrettTabell(resultat.brett, false);
+  div.appendChild(tabell);
+  return div;
+};
 
 const settSpillerId = id => {
   document.cookie = ("spillerId=" + id + ";sameSite=Strict");
@@ -72,6 +97,16 @@ const hentSpillerId = () => {
 document.addEventListener("DOMContentLoaded", event => {
     socket = io.connect();
 
+    document.getElementById("navn").onchange = ev => {
+      const nyttNavn = document.getElementById("navn").value;
+      socket.emit("nyttNavn", nyttNavn);
+    }
+
+    socket.on("hei", navn => {
+      document.getElementById("navn").value = navn;
+      document.getElementById("hei").innerText = "Hei " + navn + ".";
+    });
+
     const kanskjeSpillerId = hentSpillerId();
 
     if (kanskjeSpillerId === false) {
@@ -82,6 +117,10 @@ document.addEventListener("DOMContentLoaded", event => {
 
     socket.on("spillerId", settSpillerId);
 
+    socket.on("tid", tid => {
+      document.getElementById("tid").innerText = "" + tid;
+    });
+
     socket.on("updateUsers", data => {
     });
 
@@ -89,9 +128,10 @@ document.addEventListener("DOMContentLoaded", event => {
     });
 
     socket.on("brett", brett => {
-      setHtml(document.getElementById("brett"), [lagTabell(brett, "larg")]);
+      setHtml(document.getElementById("greier"), [lagBrettTabell(brett, true)]);
     });
-    socket.on("beregning", beregning => {
-      console.log(beregning);
+    socket.on("resultater", resultater => {
+      setHtml(document.getElementById("greier"), resultater.map(resultatHTML));
+      console.log(resultater);
     });
 });

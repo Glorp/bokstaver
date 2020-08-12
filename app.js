@@ -37,32 +37,80 @@ readInterface.on("close", start);
 
 const id = Symbol("id");
 
-var startBrett = bokstavting.lagBrett("ERERASDFG".split("").map(x => brikker.get(x)));
+var startBrett;
 
 io.sockets.on("connection", socket => {
 
   socket.on("nySpiller", () => {
-    const spillerId = spill.nySpiller("Gjest", startBrett);
-    socket[id] = spillerId;
-    socket.emit("spillerId", spillerId);
+    const spiller = spill.nySpiller("Gjest", startBrett);
+    socket[id] = spiller.id;
+    socket.emit("spillerId", spiller.id);
     socket.emit("brett", startBrett);
+    socket.emit("hei", spiller.navn)
   });
 
   socket.on("eksisterendeSpiller", gammelId => {
-    const spillerId = spill.eksisterendeSpiller(gammelId, "Gjest", startBrett);
-    socket[id] = spillerId;
-    socket.emit("spillerId", spillerId);
-    socket.emit("brett", spill.brett(spillerId));
+    const spiller = spill.eksisterendeSpiller(gammelId, "Gjest", startBrett);
+    socket[id] = spiller.id;
+    socket.emit("spillerId", spiller.id);
+    socket.emit("brett", spill.brett(spiller.id));
+    socket.emit("hei", spiller.navn);
+  });
+
+  socket.on("nyttNavn", nyttNavn => {
+    const spiller = spill.nyttNavn(socket[id], nyttNavn);
+    if (spiller !== false) {
+      socket.emit("hei", spiller.navn);
+    }
   });
 
   socket.on("flytt", (a, b) => {
     const brett = spill.flytt(socket[id], a, b);
     if (brett !== false) {
       socket.emit("brett", brett);
-      socket.emit("beregning", bokstavting.beregn(brett, ordliste));
     }
   });
 
   socket.on("disconnect", () => {
   });
 });
+
+var tid;
+
+var holderpa = false;
+
+const tidengar = () => {
+  tid = tid - 1;
+  io.sockets.emit("tid", tid);
+  if (tid === 0) {
+    ferdig();
+  } else {
+    setTimeout(tidengar, 1000);
+  }
+};
+
+const nyRunde = () => {
+  tid = 61;
+  startBrett = bokstavting.lagBrett(brikker.kast());
+  spill.nyRunde(startBrett);
+  io.sockets.emit("brett", startBrett);
+  tidengar();
+};
+
+const venter = () => {
+  tid = tid - 1;
+  io.sockets.emit("tid", tid);
+  if (tid === 0) {
+    nyRunde();
+  } else {
+    setTimeout(venter, 1000);
+  }
+}
+
+const ferdig = () => {
+  io.sockets.emit("resultater", spill.spillere().map(spiller => bokstavting.resultat(spiller, ordliste)));
+  tid = 31;
+  venter();
+};
+
+nyRunde();

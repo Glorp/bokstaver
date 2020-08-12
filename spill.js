@@ -20,7 +20,7 @@ const nySpiller = (navn, brett) => {
     brett: brett
   };
   spillere.set(spiller.id, spiller);
-  return id;
+  return spiller;
 };
 
 const flytt = (id, a, b) => {
@@ -41,21 +41,34 @@ const flytt = (id, a, b) => {
 
 const eksisterendeSpiller = (id, navn, brett) =>
   spillere.has(id)
-  ? id
+  ? spillere.get(id)
   : nySpiller(navn, brett);
+
+const nyttNavn = (id, navn) => {
+  if (!spillere.has(id)) {
+    return false;
+  }
+  const spiller = spillere.get(id)
+  const nySpiller = {
+    navn: navn,
+    id: spiller.id,
+    inaktiv: 0,
+    brett: spiller.brett
+  };
+  spillere.set(id, nySpiller);
+  return nySpiller;
+}
 
 const nyRunde = brett => {
   var nyeSpillere = new Map();
   for (const id of spillere.keys()) {
     const spiller = spillere.get(id);
-    if (b.inaktiv > 4) {
-      nyeSpillere.push({
-        navn: b.navn,
-        id: b.id,
-        inaktiv: b.inaktiv + 1,
-        brett: brett
-      });
-    }
+    nyeSpillere.set(id, {
+      navn: spiller.navn,
+      id: spiller.id,
+      inaktiv: spiller.inaktiv + 1,
+      brett: brett
+    });
   }
   spillere = nyeSpillere;
 };
@@ -65,10 +78,20 @@ const brett = id =>
   ? spillere.get(id).brett
   : false;
 
+const spillerListe = () => {
+  const res = [];
+  for (const id of spillere.keys()) {
+    res.push(spillere.get(id));
+  }
+  return res;
+};
+
 module.exports = {
   nySpiller: nySpiller,
   eksisterendeSpiller: eksisterendeSpiller,
   flytt: flytt,
   nyRunde: nyRunde,
-  brett: brett
+  brett: brett,
+  spillere: spillerListe,
+  nyttNavn: nyttNavn
 };
