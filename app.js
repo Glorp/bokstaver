@@ -49,6 +49,10 @@ const sendTilstand = (socket, spiller) => {
   }
 };
 
+const erPosisjon = p => {
+  return Number.isInteger(p.x) && Number.isInteger(p.y);
+}
+
 io.sockets.on("connection", socket => {
 
   socket.on("nySpiller", () => {
@@ -75,6 +79,10 @@ io.sockets.on("connection", socket => {
   });
 
   socket.on("flytt", (a, b) => {
+    if (!erPosisjon(a) || !erPosisjon(b)) {
+      console.log({feil: "flytt", a: a, b: b});
+      return;
+    }
     if (holderpa) {
       const brett = spill.flytt(socket[id], a, b);
       if (brett !== false) {
@@ -120,7 +128,21 @@ const venter = () => {
 
 const ferdig = () => {
   holderpa = false;
-  resultater = spill.spillere().map(spiller => bokstavting.resultat(spiller, ordliste));
+  resultater =
+    spill.spillere()
+      .map(spiller => bokstavting.resultat(spiller, ordliste));
+  resultater.sort((a, b) => {
+    if (a.grupper.length === 0 || b.grupper.length === 0) {
+      if (a.grupper.length === 0) {
+        return -1;
+      } else if (b.grupper.length === 0 !== false) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+    return b.grupper[0].poeng - a.grupper[0].poeng;
+  })
   io.sockets.emit("resultater", resultater);
   tid = 31;
   venter();

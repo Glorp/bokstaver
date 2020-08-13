@@ -30,3 +30,15 @@ td {
   width: 1rem;
   font-size: 0.5rem;
 }
+
+.riktig {
+    background-color: green;
+}
+
+.feil {
+    background-color: red;
+}
+
+.poeng {
+  font-size: 0.5rem;
+}

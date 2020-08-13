@@ -66,7 +66,7 @@ const nyRunde = brett => {
     nyeSpillere.set(id, {
       navn: spiller.navn,
       id: spiller.id,
-      inaktiv: spiller.inaktiv + 1,
+      inaktiv: spiller.inaktiv >= 2 ? 2 : spiller.inaktiv + 1,
       brett: brett
     });
   }
@@ -81,7 +81,10 @@ const brett = id =>
 const spillerListe = () => {
   const res = [];
   for (const id of spillere.keys()) {
-    res.push(spillere.get(id));
+    const spiller = spillere.get(id);
+    if (spiller.inaktiv < 3) {
+      res.push(spiller);
+    }
   }
   return res;
 };

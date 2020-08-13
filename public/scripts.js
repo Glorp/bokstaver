@@ -31,7 +31,7 @@ const drop = ev => {
   socket.emit("flytt", tdPos(sourceElement), tdPos(ev.target));
 };
 
-const lagBrettTabell = (brett, aktiv) => {
+const lagBrettTabell = (brett, aktiv, farger) => {
   const tabell = document.createElement("table");
   var y = 0;
   brett.ruter.forEach(rad => {
@@ -41,6 +41,12 @@ const lagBrettTabell = (brett, aktiv) => {
     rad.forEach(rute => {
       const td = document.createElement("td");
       td.classList.add(aktiv ? "larg" : "smol");
+      if (farger !== false) {
+        const farge = farger[y][x];
+        if (farge !== ingen) {
+          td.classList.add(farge == riktig ? "riktig" : "feil")
+        }
+      }
       td.innerText = rute === "tom" ? "\xa0" : rute.bokstav;
       if (rute !== "tom") {
         const sub = document.createElement("sub");
@@ -65,22 +71,58 @@ const lagBrettTabell = (brett, aktiv) => {
 };
 
 const resultatHTML = resultat => {
-  const div = document.createElement("div");
+  const res = document.createElement("table");
+  const tr = document.createElement("tr");
+  res.appendChild(tr);
+
+  const brettTd = document.createElement("td");
+  tr.appendChild(brettTd);
+  const farger = velgFarger(resultat.brett.storelse, resultat.grupper);
+  brettTd.appendChild(lagBrettTabell(resultat.brett, false, farger));
+
+  const poengTd = document.createElement("td");
+  poengTd.classList.add("poeng");
+  tr.appendChild(poengTd);
   const p = document.createElement("p");
-  p.innerText =
-    resultat.navn + ": "
-    + (resultat.best ? resultat.best.poeng : ":(");
-  div.appendChild(p);
-  if (resultat.best) {
-    for (const o of resultat.best.ord) {
-      const ordP = document.createElement("p");
-      ordP.innerText = o.tekst + ": " + o.poeng;
-      div.appendChild(ordP);
+  poengTd.appendChild(p);
+
+  const best = resultat.grupper.length === 0 ? false : resultat.grupper[0];
+  if (best) {
+    p.innerText = resultat.navn + ": " + best.poeng;
+    if (best.lovlig) {
+      for (const o of best.ord) {
+        const ordP = document.createElement("p");
+        ordP.innerText = o.tekst + ": " + o.poeng;
+        poengTd.appendChild(ordP);
+      }
+    }
+  } else {
+    p.innerText = resultat.navn + ": 0";
+  }
+
+  return res;
+};
+
+const ingen = Symbol("ingen");
+const riktig = Symbol("riktig");
+const feil = Symbol("feil");
+const bortover = p => lagPosisjon(p.x + 1, p.y);
+const nedover = p => lagPosisjon(p.x, p.y + 1);
+const velgFarger = (storelse, grupper) => {
+  const res = Array.from(Array(storelse).keys()).map(x => Array(storelse).fill(ingen));
+  for (const gruppe of grupper) {
+    for (const o of gruppe.ord) {
+      var pos = o.rekke.start;
+      const retning = o.rekke.retning === "vannrett" ? bortover : nedover;
+      for (const b of o.rekke.brikker) {
+        if (res[pos.y][pos.x] !== feil) {
+          res[pos.y][pos.x] = o.lovlig ? riktig: feil;
+          pos = retning(pos);
+        }
+      }
     }
   }
-  const tabell = lagBrettTabell(resultat.brett, false);
-  div.appendChild(tabell);
-  return div;
+  return res;
 };
 
 const settSpillerId = id => {
@@ -128,10 +170,10 @@ document.addEventListener("DOMContentLoaded", event => {
     });
 
     socket.on("brett", brett => {
-      setHtml(document.getElementById("greier"), [lagBrettTabell(brett, true)]);
+      setHtml(document.getElementById("brett"), [lagBrettTabell(brett, true, false)]);
     });
     socket.on("resultater", resultater => {
-      setHtml(document.getElementById("greier"), resultater.map(resultatHTML));
+      setHtml(document.getElementById("resultater"), resultater.map(resultatHTML));
       console.log(resultater);
     });
 });

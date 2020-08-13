@@ -193,24 +193,22 @@ const poengForFlereOrd = ord => {
   };
 };
 
-const beregn = (brett, ordliste) =>
-  finnGrupper(brett)
-    .map(g => brettGruppeFiltrer(brett, g))
-    .map(b => alleRekker(b))
-    .map(rekker => rekker.map(rekke => sjekkOrdliste(rekke, ordliste)))
-    .map(poengForFlereOrd);
+const beregn = (brett, ordliste) => {
+  const res =
+    finnGrupper(brett)
+      .map(g => brettGruppeFiltrer(brett, g))
+      .map(b => alleRekker(b))
+      .map(rekker => rekker.map(rekke => sjekkOrdliste(rekke, ordliste)))
+      .map(poengForFlereOrd);
+    res.sort((a, b) => b.poeng - a.poeng);
+    return res;
+};
 
 const resultat = (spiller, ordliste) => {
-  var res = false;
-  for (const x of beregn(spiller.brett, ordliste)) {
-    if (x.lovlig && (res === false || res.poeng < x.poeng)) {
-      res = x;
-    }
-  }
   return {
     navn: spiller.navn,
     brett: spiller.brett,
-    best: res
+    grupper: beregn(spiller.brett, ordliste)
   };
 };
 
