@@ -133,9 +133,9 @@ const ferdig = () => {
   resultater.sort((a, b) => {
     if (a.grupper.length === 0 || b.grupper.length === 0) {
       if (a.grupper.length === 0) {
-        return -1;
-      } else if (b.grupper.length === 0 !== false) {
         return 1;
+      } else if (b.grupper.length === 0 !== false) {
+        return -1;
       } else {
         return 0;
       }
