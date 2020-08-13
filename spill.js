@@ -82,7 +82,7 @@ const spillerListe = () => {
   const res = [];
   for (const id of spillere.keys()) {
     const spiller = spillere.get(id);
-    if (spiller.inaktiv < 3) {
+    if (spiller.inaktiv < 2) {
       res.push(spiller);
     }
   }
