@@ -117,8 +117,8 @@ const velgFarger = (storelse, grupper) => {
       for (const b of o.rekke.brikker) {
         if (res[pos.y][pos.x] !== feil) {
           res[pos.y][pos.x] = o.lovlig ? riktig: feil;
-          pos = retning(pos);
         }
+        pos = retning(pos);
       }
     }
   }
