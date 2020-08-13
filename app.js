@@ -42,9 +42,8 @@ var holderpa = false;
 var resultater = false;
 
 const sendTilstand = (socket, spiller) => {
-  if (holderpa) {
-    socket.emit("brett", spiller.brett);
-  } else if (resultater !== false) {
+  socket.emit("brett", spiller.brett);
+  if (resultater !== false) {
     socket.emit("resultater", resultater);
   }
 };
