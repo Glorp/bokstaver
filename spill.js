@@ -84,7 +84,7 @@ const lagSpill = (io, rom, ordliste) => {
       navn: navn,
       id: spiller.id,
       brett: spiller.brett,
-      sum: spiller.sum
+      poeng: spiller.poeng
     };
     spillere.set(id, nySpiller);
     return nySpiller;
