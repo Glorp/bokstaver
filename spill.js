@@ -11,16 +11,16 @@ const uuidv4 = () =>
 
 const lagSpill = (io, rom, ordliste) => {
   var spillere = new Map();
-
-  var tid;
-  var holderpa;
   var resultater = false;
-  var startBrett;
+  var startBrett = false;
 
   var konfigurasjon = {
     rundeTid: 60,
     pauseTid: 30
-  }
+  };
+
+  var holderpa = false;
+  var tid = konfigurasjon.pauseTid;
 
   const konfigurer = nyKonfigurasjon => {
     const num = (x, gammel) => {
@@ -30,7 +30,10 @@ const lagSpill = (io, rom, ordliste) => {
     };
     konfigurasjon.rundeTid = num(nyKonfigurasjon.rundeTid, konfigurasjon.rundeTid);
 
-    konfigurasjon.pauseTid = num(nyKonfigurasjon.pauseTid, konfigurasjon.pauseTid);
+    konfigurasjon.pauseTid =
+      nyKonfigurasjon.pauseTid === "venter"
+      ? "venter"
+      : num(nyKonfigurasjon.pauseTid, konfigurasjon.pauseTid);
   };
 
   const nySpiller = (navn, brett) => {
@@ -41,8 +44,8 @@ const lagSpill = (io, rom, ordliste) => {
     const spiller = {
       navn: navn,
       id: id,
-      inaktiv: 0,
-      brett: brett
+      brett: brett,
+      poeng: 0
     };
     spillere.set(spiller.id, spiller);
     return spiller;
@@ -60,8 +63,8 @@ const lagSpill = (io, rom, ordliste) => {
     const nySpiller = {
       navn: spiller.navn,
       id: id,
-      inaktiv: 0,
-      brett: nyttBrett
+      brett: nyttBrett,
+      poeng: spiller.poeng
     };
     spillere.set(spiller.id, nySpiller);
     return nyttBrett;
@@ -76,12 +79,12 @@ const lagSpill = (io, rom, ordliste) => {
     if (!spillere.has(id)) {
       return false;
     }
-    const spiller = spillere.get(id)
+    const spiller = spillere.get(id);
     const nySpiller = {
       navn: navn,
       id: spiller.id,
-      inaktiv: 0,
-      brett: spiller.brett
+      brett: spiller.brett,
+      sum: spiller.sum
     };
     spillere.set(id, nySpiller);
     return nySpiller;
@@ -92,22 +95,7 @@ const lagSpill = (io, rom, ordliste) => {
     ? spillere.get(id).brett
     : false;
 
-  const spillerListe = () => {
-    const res = [];
-    for (const id of spillere.keys()) {
-      const spiller = spillere.get(id);
-      if (spiller.inaktiv < 2) {
-        res.push(spiller);
-      }
-    }
-    return res;
-  };
-
   const nyRunde = () => {
-    if (io.sockets.adapter.rooms[rom] === undefined) {
-      alleSpillene.delete(rom);
-      return;
-    }
     startBrett = bokstavting.lagBrett(brikker.kast());
     var nyeSpillere = new Map();
     for (const id of spillere.keys()) {
@@ -115,8 +103,8 @@ const lagSpill = (io, rom, ordliste) => {
       nyeSpillere.set(id, {
         navn: spiller.navn,
         id: spiller.id,
-        inaktiv: spiller.inaktiv >= 2 ? 2 : spiller.inaktiv + 1,
-        brett: startBrett
+        brett: startBrett,
+        poeng: spiller.poeng
       });
     }
     spillere = nyeSpillere;
@@ -127,31 +115,64 @@ const lagSpill = (io, rom, ordliste) => {
     io.to(rom).emit("brett", startBrett);
     tidengar();
   };
+
   const tidengar = () => {
     tid = tid - 1;
     io.to(rom).emit("tid", tid);
     if (tid === 0) {
       ferdig();
-    } else {
-      setTimeout(tidengar, 1000);
     }
   };
+
+  const tikk = () => {
+    if (io.sockets.adapter.rooms[rom] === undefined) {
+      alleSpillene.delete(rom);
+      return;
+    }
+
+    if (tid !== "venter") {
+      if (holderpa) {
+        tidengar();
+      } else {
+        venter();
+      }
+    }
+    setTimeout(tikk, 1000);
+  }
+
+  const startNesteRunde = () => {
+    if (holderpa) {
+      return;
+    }
+    if (tid === "venter" || tid > 5) {
+      tid = 5;
+    }
+  };
+
   const venter = () => {
     tid = tid - 1;
     io.to(rom).emit("pausetid", tid);
     if (tid === 0) {
       nyRunde();
-    } else {
-      setTimeout(venter, 1000);
     }
-  }
+  };
 
   const ferdig = () => {
     holderpa = false;
-    resultater =
-      spillerListe()
-        .map(spiller => bokstavting.resultat(spiller, ordliste));
-    resultater.sort((a, b) => {
+    const res = [];
+    const nyeSpillere = new Map();
+    for (const spiller of spillere.values()) {
+      const spillerRes = bokstavting.resultat(spiller, ordliste);
+
+      nyeSpillere.set(spiller.id, {
+        navn: spiller.navn,
+        id: spiller.id,
+        brett: spiller.brett,
+        poeng: spillerRes.totalt
+      });
+      res.push(spillerRes);
+    }
+    res.sort((a, b) => {
       if (a.grupper.length === 0 || b.grupper.length === 0) {
         if (a.grupper.length === 0) {
           return 1;
@@ -162,10 +183,13 @@ const lagSpill = (io, rom, ordliste) => {
         }
       }
       return b.grupper[0].poeng - a.grupper[0].poeng;
-    })
+    });
+
+    spillere = nyeSpillere;
+    resultater = res;
+
     io.to(rom).emit("resultater", resultater);
-    tid = konfigurasjon.pauseTid + 1;
-    venter();
+    tid = konfigurasjon.pauseTid;
   };
 
 
@@ -173,6 +197,7 @@ const lagSpill = (io, rom, ordliste) => {
     rom: rom,
     nySpiller: nySpiller,
     hentSpiller: hentSpiller,
+    startNesteRunde: startNesteRunde,
     flytt: flytt,
     nyttNavn: nyttNavn,
     startBrett: () => startBrett,
@@ -183,7 +208,7 @@ const lagSpill = (io, rom, ordliste) => {
   //io.to(rom).emit("resultater", [1,2,3,4,5,6,7,8,9,0,1,2,3,4,4,5,6,7].map(x => nySpiller("mlep", bokstavting.lagBrett(brikker.kast()))).map(spiller => bokstavting.resultat(spiller, ordliste)));
 
   alleSpillene.set(rom, res);
-  nyRunde();
+  tikk();
   return res;
 }
 

@@ -59,7 +59,9 @@ io.sockets.on("connection", socket => {
     minId = spiller.id;
     socket.emit("spillerId", spiller.id);
     socket.emit("hei", spiller.navn);
-    socket.emit("brett", spiller.brett);
+    if (spiller.brett !== false) {
+      socket.emit("brett", spiller.brett);
+    }
     if (mittSpill.resultater() !== false) {
       socket.emit("resultater", mittSpill.resultater());
     }
@@ -72,6 +74,8 @@ io.sockets.on("connection", socket => {
       socket.emit("hei", spiller.navn);
     }
   });
+
+  socket.on("start neste runde", () => mittSpill.startNesteRunde());
 
   socket.on("flytt", (a, b) => {
     if (!erPosisjon(a) || !erPosisjon(b)) {

@@ -110,7 +110,7 @@ const resultatHTML = resultat => {
 
   const best = resultat.grupper.length === 0 ? false : resultat.grupper[0];
   if (best) {
-    p.innerText = resultat.navn + ": " + best.poeng;
+    p.innerText = resultat.navn + ": " + best.poeng + " (totalt: " + resultat.totalt + ")";
     if (best.lovlig) {
       for (const o of best.ord) {
         const ordP = document.createElement("p");

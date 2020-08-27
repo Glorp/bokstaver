@@ -205,10 +205,13 @@ const beregn = (brett, ordliste) => {
 };
 
 const resultat = (spiller, ordliste) => {
+  const grupper = beregn(spiller.brett, ordliste);
+  const poeng = grupper.length === 0 ? 0 : grupper[0].poeng;
   return {
     navn: spiller.navn,
     brett: spiller.brett,
-    grupper: beregn(spiller.brett, ordliste)
+    grupper: grupper,
+    totalt: spiller.poeng + poeng
   };
 };
 
