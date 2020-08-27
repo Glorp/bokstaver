@@ -1,20 +1,56 @@
 <html>
   <head>
     <title>Mlep mlep mlep</title>
-    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="/js-cookie/js.cookie-2.2.1.min.js"></script>
     <script type="text/javascript" src="/scripts.js"></script>
     <link rel="stylesheet" href="/styles.css" type="text/css" media="all" />
   </head>
 
   <body>
-    <p>Navn: <input type"text" id="navn" value="Gjest"></input></p>
-    <p id="hei">
-    </p>
-    <p id="tid">
-    </p>
-    <div id="brett">
+    <marquee
+      direction="up"
+      behavior="alternate"
+      style="height:20em;overflow: visible;"
+      ><marquee style="overflow: visible;"
+        ><h1>
+          L'ANdrea Sitt Bokstavrot
+        </h1></marquee
+      ></marquee
+    >
+
+    <label for="navn">Navn:</label>
+    <input type="text" id="navn" value="Gjest" />
+
+    <p id="hei"></p>
+    <div class="statusvindu">
+      <div id="nedtelling-ny-runde">
+        <h4>
+          Ta en pause og se hvordan det gikk med motstanderne dine! Imens teller
+          jeg ned til ny runde. BEEP BOOP
+        </h4>
+        <p id="pausetid" class="nedtelling-ny-runde"></p>
+      </div>
     </div>
-    <div id="resultater">
+
+    <div class="layout">
+      <div class="layout-hoved">
+        <h2>
+          Ditt spillebrett
+        </h2>
+        <div id="nedtelling-spill" class="spill-status">
+          <h4 id="haster" class="beskrivelse"></h4>
+          <p id="tid" class="nedtelling-spill"></p>
+        </div>
+        <div id="brett"></div>
+      </div>
+
+      <div class="layout-side">
+        <h2>
+          Your mortal enemies (resultater fra forrige runde)
+        </h2>
+        <div id="resultater" class="andre-spillere"></div>
+      </div>
     </div>
   </body>
 </html>

@@ -1,11 +1,45 @@
 body {
-  font-family: "Benton Sans", "Helvetica Neue", helvetica, arial, sans-serif;
+  font-family: Inter, "Benton Sans", "Helvetica Neue", helvetica, arial, sans-serif;
   margin: 2em;
+
 }
+
+@font-face {
+  font-family: Inter;
+  font-weight: 100 900;
+  font-style: normal;
+  font-named-instance: Regular;
+  src: url(https://www.vg.no/vgc/font-spesial/Inter/Inter-roman.subset.ttf#iefix)
+      format('embedded-opentype'),
+    url(https://www.vg.no/vgc/font-spesial/Inter/Inter-roman.subset.woff2)
+      format('woff2'),
+    url(https://www.vg.no/vgc/font-spesial/Inter/Inter-roman.subset.woff)
+      format('woff');
+}
+
+@font-face {
+  font-family: Inter;
+  font-weight: 100 900;
+  font-style: italic;
+  font-named-instance: Italic;
+  src: url(https://www.vg.no/vgc/font-spesial/Inter/Inter-italic.subset.ttf#iefix)
+      format('embedded-opentype'),
+    url(https://www.vg.no/vgc/font-spesial/Inter/Inter-italic.subset.woff2)
+      format('woff2'),
+    url(https://www.vg.no/vgc/font-spesial/Inter/Inter-italic.subset.woff)
+      format('woff');
+}
+
 
 h1 {
   font-style: italic;
-  color: #373fff;
+  color: #323fff;
+  animation: colors 5s linear infinite;
+  transform-origin: center;
+  font-family: Inter;
+  height: 5em;
+  display: inline-block;
+  line-height: 5em;
 }
 
 table {
@@ -20,25 +54,124 @@ td {
 }
 
 .larg {
-  height: 2rem;
-  width: 2rem;
-  font-size: 1rem;
+  height: 1.8rem;
+  width: 1.8rem;
+  font-size: 1.2rem;
+  text-align: center;
+  vertical-align: middle;
 }
 
+/*Oversikt over alles brett TIL SLUTT eller begynnelsen???*/
+
 .smol {
-  height: 1rem;
-  width: 1rem;
-  font-size: 0.5rem;
+  height: 1.4rem;
+  width: 1.4rem;
+  font-size: 1rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+@keyframes colors {
+  from {
+    color: rgb(255, 255, 0);
+    transform: rotate(0deg) skew(5deg, 10deg) scale(1);
+    font-weight: 100;
+    font-style: oblique 0deg 0deg;
+  }
+  20% {
+    color: rgb(255, 0, 255);
+    transform: skew(10deg, 0deg) scale(2);
+    font-weight: 900;
+
+  }
+  80% {
+   color: rgb(0, 255, 255);
+    transform: skew(10deg, 10deg) scale(1);
+    font-weight: 100;
+  }
+  to {
+
+    color: rgb(255, 255, 0);
+    transform: rotate(20deg) skew(0deg, 0deg) scale(2);
+    font-weight: 200;
+    font-style: oblique 0deg 45deg;
+  }
+}
+
+.brikke {
+  background-color: #FAF0E6;
 }
 
 .riktig {
-    background-color: green;
+    background-color: #cff0cc;
 }
 
 .feil {
-    background-color: red;
+    background-color: #ff6961;
 }
 
 .poeng {
   font-size: 0.5rem;
 }
+
+.andre-spillere table {
+  margin: 1em;
+}
+
+.andre-spillere {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.layout-side {
+  flex-grow: 1;
+  flex-basis: 30%;
+}
+.layout-hoved {
+  flex-basis: 370px;
+}
+.layout>* {
+  margin: 2em;
+}
+.layout {
+  display: flex;
+  flex-wrap: wrap;
+
+}
+.nedtelling-ny-runde {
+  font-size: 3em;
+  color: white;
+  font-weight: 800;
+}
+.spill-status {
+  display: flex;
+}
+.spill-status>.beskrivelse {
+  flex-grow: 1;
+}
+.nedtelling-spill {
+  font-size: 2em;
+}
+
+.statusvindu {
+  font-size: 1em;
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 20%;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.5em;
+
+}
+
+.statusvindu.lite-tid {
+  background-color: rgba(240, 0, 0, .8);
+}
+
+.spillernavn {
+  font-size: 1em;
+  margin: 0.5em;
+  color: green;
+  font-weight: 800;
+  }
