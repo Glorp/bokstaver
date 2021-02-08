@@ -198,7 +198,6 @@ const lagSpill = (io, rom, ordliste) => {
     tid = konfigurasjon.pauseTid;
   };
 
-
   const res = {
     rom: rom,
     nySpiller: nySpiller,
@@ -210,8 +209,6 @@ const lagSpill = (io, rom, ordliste) => {
     resultater: () => resultater,
     konfigurer: konfigurer
   };
-
-  //io.to(rom).emit("resultater", [1,2,3,4,5,6,7,8,9,0,1,2,3,4,4,5,6,7].map(x => nySpiller("mlep", bokstavting.lagBrett(brikker.kast()))).map(spiller => bokstavting.resultat(spiller, ordliste)));
 
   alleSpillene.set(rom, res);
   tikk();

@@ -4,11 +4,10 @@ var express = require("express")
   , server = http.createServer(app)
   , io = require("socket.io").listen(server)
   , path = require("path")
-  , readline = require("readline")
-  , fs = require("fs")
   , bokstavting = require("./bokstavting")
   , brikker = require("./brikker")
-  , spill = require("./spill");
+  , spill = require("./spill")
+  , lesord = require("./lesord");
 
 // Start server
 const start = () => {
@@ -23,17 +22,15 @@ const start = () => {
   });
 };
 
-const readInterface = readline.createInterface({
-  input: fs.createReadStream("./nsf2020.txt"),
-  crlfDelay: Infinity
-});
+var ordliste;
 
-const ordliste = new Set();
-
-readInterface.on("line", ord => {
-    ordliste.add(ord);
+const ordlister = {};
+const no = "./nsf2020.txt";
+const en =  "./sowpods.txt";
+lesord([no, en], ordlister, () => {
+  ordliste = ordlister[no];
+  start();
 });
-readInterface.on("close", start);
 
 
 
