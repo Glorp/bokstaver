@@ -7,7 +7,7 @@ const lagBrett = brikker => {
   for (var y = 0; y < storelse; y++) {
     const rad = [];
     for (var x = 0; x < storelse; x++) {
-      rad.push(x === y ? brikker[x] : tom);
+      rad.push(y === brikker.length - 1 ? brikker[x] : tom);
     }
     ruter.push(rad);
   }
@@ -129,7 +129,7 @@ const rekkerIRetning = (brett, retning) => {
       }
     }
     if ((nyRekke !== false) && nyRekke.brikker.length > 1) {
-      rekke.push(nyRekke);
+      rekker.push(nyRekke);
     }
   }
   return rekker;

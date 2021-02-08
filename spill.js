@@ -13,16 +13,18 @@ const lagSpill = (io, rom, ordliste) => {
   var spillere = new Map();
   var resultater = false;
   var startBrett = false;
+  var admin = false;
 
   var konfigurasjon = {
     rundeTid: 60,
-    pauseTid: 30
+    pauseTid: "venter"
   };
 
   var holderpa = false;
   var tid = konfigurasjon.pauseTid;
 
-  const konfigurer = nyKonfigurasjon => {
+  const konfigurer = (id, nyKonfigurasjon) => {
+    if (id !== admin) return;
     const num = (x, gammel) => {
       if (typeof 1 !== "number") return gammel;
       const num = Math.floor(x);
@@ -47,6 +49,10 @@ const lagSpill = (io, rom, ordliste) => {
       brett: brett,
       poeng: 0
     };
+    if (admin === false) {
+      admin = spiller.id;
+      spiller.admin = true;
+    }
     spillere.set(spiller.id, spiller);
     return spiller;
   };
@@ -140,8 +146,8 @@ const lagSpill = (io, rom, ordliste) => {
     setTimeout(tikk, 1000);
   }
 
-  const startNesteRunde = () => {
-    if (holderpa) {
+  const startNesteRunde = id => {
+    if (holderpa || admin !== id) {
       return;
     }
     if (tid === "venter" || tid > 5) {

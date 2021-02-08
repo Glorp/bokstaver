@@ -1,4 +1,4 @@
-/* globals io */
+/* globals io Cookies */
 
 var socket;
 
@@ -109,17 +109,14 @@ const resultatHTML = resultat => {
   spillertd.appendChild(p);
 
   const best = resultat.grupper.length === 0 ? false : resultat.grupper[0];
-  if (best) {
-    p.innerText = resultat.navn + ": " + best.poeng + " (totalt: " + resultat.totalt + ")";
-    if (best.lovlig) {
-      for (const o of best.ord) {
-        const ordP = document.createElement("p");
-        ordP.innerText = o.tekst + ": " + o.poeng;
-        poengTd.appendChild(ordP);
-      }
+  const poeng = best === false ? 0 : best.poeng;
+  p.innerText = resultat.navn + ": " + poeng + " (totalt: " + resultat.totalt + ")";
+  if (best !== false && best.lovlig) {
+    for (const o of best.ord) {
+      const ordP = document.createElement("p");
+      ordP.innerText = o.tekst + ": " + o.poeng;
+      poengTd.appendChild(ordP);
     }
-  } else {
-    p.innerText = resultat.navn + ": 0";
   }
 
   return res;
@@ -183,6 +180,15 @@ document.addEventListener("DOMContentLoaded", event => {
     setSpillerNavn(navn);
     oppdaterSpillerNavn();
   });
+  
+  socket.on("admin", () => {
+    const p = document.createElement("p")
+    const btn = document.createElement("button");
+    btn.innerText = "Start runde";
+    btn.onclick = () => socket.emit("start neste runde");
+    p.appendChild(btn);
+    document.getElementById("hei").after(p);
+  });
 
   document.getElementById("navn").onchange = ev => {
     const nyttNavn = document.getElementById("navn").value;
@@ -228,6 +234,7 @@ document.addEventListener("DOMContentLoaded", event => {
   });
   socket.on("resultater", resultater => {
     console.log(resultater);
+    document.getElementById("nedtelling-ny-runde").style.display = "flex";
     setHtml(
       document.getElementById("resultater"),
       resultater.map(resultatHTML)
