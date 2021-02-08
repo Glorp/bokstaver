@@ -49,7 +49,7 @@ io.sockets.on("connection", socket => {
       socket.leave(mittSpill.rom);
     }
     socket.join(rom);
-    mittSpill = spill(io, rom, ordliste);
+    mittSpill = spill(io, rom, ordliste, brikker.kast);
 
     const spiller = mittSpill.hentSpiller(gammelId, navn);
 

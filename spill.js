@@ -1,5 +1,4 @@
 const bokstavting = require("./bokstavting");
-const brikker = require("./brikker");
 
 const alleSpillene = new Map();
 
@@ -9,7 +8,7 @@ const uuidv4 = () =>
     return v.toString(16);
   });
 
-const lagSpill = (io, rom, ordliste) => {
+const lagSpill = (io, rom, ordliste, kast) => {
   var spillere = new Map();
   var resultater = false;
   var startBrett = false;
@@ -102,7 +101,7 @@ const lagSpill = (io, rom, ordliste) => {
     : false;
 
   const nyRunde = () => {
-    startBrett = bokstavting.lagBrett(brikker.kast());
+    startBrett = bokstavting.lagBrett(kast());
     var nyeSpillere = new Map();
     for (const id of spillere.keys()) {
       const spiller = spillere.get(id);
@@ -215,9 +214,9 @@ const lagSpill = (io, rom, ordliste) => {
   return res;
 }
 
-module.exports = (io, rom, ordliste) => {
+module.exports = (io, rom, ordliste, kast) => {
   const eksisterende = alleSpillene.get(rom);
   return eksisterende === undefined
-    ? lagSpill(io, rom, ordliste)
+    ? lagSpill(io, rom, ordliste, kast)
     : eksisterende;
 };
