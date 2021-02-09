@@ -9,7 +9,7 @@ const les = (path, res, cont) => {
   const ordliste = new Set();
 
   readInterface.on("line", ord => {
-      ordliste.add(ord);
+      ordliste.add(ord.toLowerCase());
   });
   readInterface.on("close", () => {
     res[path] = ordliste;

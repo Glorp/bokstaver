@@ -8,7 +8,9 @@ const uuidv4 = () =>
     return v.toString(16);
   });
 
-const lagSpill = (io, rom, ordliste, kast) => {
+const lagSpill = (io, rom, sprak) => {
+  const ordliste = sprak.ordliste;
+  const trekk = sprak.trekk;
   var spillere = new Map();
   var resultater = false;
   var startBrett = false;
@@ -101,7 +103,7 @@ const lagSpill = (io, rom, ordliste, kast) => {
     : false;
 
   const nyRunde = () => {
-    startBrett = bokstavting.lagBrett(kast());
+    startBrett = bokstavting.lagBrett(trekk());
     var nyeSpillere = new Map();
     for (const id of spillere.keys()) {
       const spiller = spillere.get(id);
@@ -214,9 +216,9 @@ const lagSpill = (io, rom, ordliste, kast) => {
   return res;
 }
 
-module.exports = (io, rom, ordliste, kast) => {
+module.exports = (io, rom, sprak) => {
   const eksisterende = alleSpillene.get(rom);
   return eksisterende === undefined
-    ? lagSpill(io, rom, ordliste, kast)
+    ? lagSpill(io, rom, sprak)
     : eksisterende;
 };

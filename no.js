@@ -52,7 +52,4 @@ const terninger = [
 
 const kast = () => terninger.map(a => a[Math.floor(Math.random() * a.length)]);
 
-module.exports = {
-  brikker: brikker,
-  kast: kast
-};
+module.exports = kast;

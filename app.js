@@ -5,30 +5,31 @@ var express = require("express")
   , io = require("socket.io").listen(server)
   , path = require("path")
   , bokstavting = require("./bokstavting")
-  , brikker = require("./brikker")
+  , kast = require("./no")
   , spill = require("./spill")
   , lesord = require("./lesord");
 
-// Start server
 const start = () => {
   server.listen(3000);
 
-  // Set up 'public' folder
   app.use(express.static(path.join(__dirname, "public")));
 
-  // Point / to index.html (could just put index.html in public but leaving for reference)
-  app.use('/spill/*', (req, res, next) => {
+  app.use("/no/*", (req, res, next) => {
+    res.sendFile("public/index.html", { root : __dirname })
+  });
+  app.use("/en/*", (req, res, next) => {
     res.sendFile("public/index.html", { root : __dirname })
   });
 };
 
-var ordliste;
-
 const ordlister = {};
+const sprak = {};
 const no = "./nsf2020.txt";
 const en =  "./sowpods.txt";
 lesord([no, en], ordlister, () => {
   ordliste = ordlister[no];
+  sprak["no"] = { ordliste: ordlister[no], trekk: require("./no") };
+  sprak["en"] = { ordliste: ordlister[en], trekk: require("./en") };
   start();
 });
 
@@ -49,7 +50,7 @@ io.sockets.on("connection", socket => {
       socket.leave(mittSpill.rom);
     }
     socket.join(rom);
-    mittSpill = spill(io, rom, ordliste, brikker.kast);
+    mittSpill = spill(io, rom, rom.startsWith("/en/") ? sprak["en"] : sprak["no"]);
 
     const spiller = mittSpill.hentSpiller(gammelId, navn);
 
